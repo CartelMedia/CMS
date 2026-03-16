@@ -59,7 +59,7 @@ export default function NewPagePage() {
     const postData = {
       title, slug: slug || slugify(title),
       content_json: contentJson, content_html: contentHtml, excerpt,
-      status: saveStatus, post_type: 'page', author_id: user?.id,
+      status: saveStatus, type: 'page', author_id: user?.id,
       featured_image: featuredImage || null, visibility,
       password: visibility === 'password' ? password : null,
       template, parent_id: parentId ? parseInt(parentId) : null,
@@ -109,7 +109,7 @@ export default function NewPagePage() {
           <button onClick={() => handleSave('draft')} className="btn btn-secondary btn-sm" disabled={saving || !title.trim()}>
             <Save size={14} /> {saving ? 'Saving…' : 'Save Draft'}
           </button>
-          <button onClick={() => handleSave('publish')} className="btn btn-primary btn-sm" disabled={saving || !title.trim()}>
+          <button onClick={() => handleSave('published')} className="btn btn-primary btn-sm" disabled={saving || !title.trim()}>
             <Send size={14} /> Publish
           </button>
         </div>
@@ -138,7 +138,7 @@ export default function NewPagePage() {
               <select className="form-select" value={status} onChange={e => setStatus(e.target.value)} style={{ fontSize: '0.8rem' }}>
                 <option value="draft">Draft</option>
                 <option value="pending">Pending Review</option>
-                <option value="publish">Published</option>
+                <option value="published">Published</option>
                 <option value="private">Private</option>
               </select>
             </div>

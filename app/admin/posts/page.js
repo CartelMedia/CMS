@@ -10,7 +10,7 @@ import {
 
 const STATUS_TABS = [
   { key: 'all', label: 'All' },
-  { key: 'publish', label: 'Published' },
+  { key: 'published', label: 'Published' },
   { key: 'draft', label: 'Draft' },
   { key: 'pending', label: 'Pending' },
   { key: 'trash', label: 'Trash' },
@@ -73,7 +73,7 @@ export default function PostsListPage() {
       if (bulkAction === 'trash') {
         await fetch(`/api/posts/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'trash' }) })
       } else if (bulkAction === 'publish') {
-        await fetch(`/api/posts/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'publish' }) })
+        await fetch(`/api/posts/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'published' }) })
       } else if (bulkAction === 'draft') {
         await fetch(`/api/posts/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'draft' }) })
       } else if (bulkAction === 'delete') {
@@ -104,7 +104,7 @@ export default function PostsListPage() {
 
   const statusColor = (s) => {
     switch (s) {
-      case 'publish': return 'badge-success'
+      case 'published': return 'badge-success'
       case 'draft': return 'badge-secondary'
       case 'pending': return 'badge-warning'
       case 'trash': return 'badge-danger'
@@ -158,7 +158,7 @@ export default function PostsListPage() {
               </>
             ) : (
               <>
-                <option value="publish">Publish</option>
+                <option value="published">Publish</option>
                 <option value="draft">Set Draft</option>
                 <option value="trash">Move to Trash</option>
               </>
@@ -228,7 +228,7 @@ export default function PostsListPage() {
                     </div>
                   </div>
                 </td>
-                <td style={{ fontSize: '0.8rem' }}>{post.author?.display_name || post.author?.email || '—'}</td>
+                <td style={{ fontSize: '0.8rem' }}>{post.author?.name || post.author?.email || '—'}</td>
                 <td><span className={`badge ${statusColor(post.status)}`}>{post.status}</span></td>
                 <td style={{ fontSize: '0.8rem', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
                   {formatDate(post.published_at || post.created_at)}

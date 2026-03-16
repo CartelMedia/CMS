@@ -86,14 +86,14 @@ export default function EditPagePage({ params }) {
   }
 
   async function handlePublish() {
-    setStatus('publish')
+    setStatus('published')
     setSaving(true)
     await fetch(`/api/posts/${id}`, {
       method: 'PUT', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         title, slug: slug || slugify(title),
         content_json: contentJson, content_html: contentHtml, excerpt,
-        status: 'publish', visibility,
+        status: 'published', visibility,
         password: visibility === 'password' ? password : null,
         featured_image: featuredImage || null,
         template, parent_id: parentId ? parseInt(parentId) : null,
@@ -139,14 +139,14 @@ export default function EditPagePage({ params }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <button onClick={() => router.push('/admin/pages')} className="btn btn-ghost btn-sm btn-icon"><ArrowLeft size={16} /></button>
           <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>Edit Page</h1>
-          <span className={`badge ${status === 'publish' ? 'badge-success' : 'badge-secondary'}`}>{status}</span>
+          <span className={`badge ${status === 'published' ? 'badge-success' : 'badge-secondary'}`}>{status}</span>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
           <button onClick={handleTrash} className="btn btn-danger btn-sm"><Trash2 size={14} /> Trash</button>
           <button onClick={handleUpdate} className="btn btn-secondary btn-sm" disabled={saving}>
             <Save size={14} /> {saving ? 'Saving…' : 'Update'}
           </button>
-          {status !== 'publish' && (
+          {status !== 'published' && (
             <button onClick={handlePublish} className="btn btn-primary btn-sm" disabled={saving}><Send size={14} /> Publish</button>
           )}
         </div>
@@ -181,7 +181,7 @@ export default function EditPagePage({ params }) {
               <select className="form-select" value={status} onChange={e => setStatus(e.target.value)} style={{ fontSize: '0.8rem' }}>
                 <option value="draft">Draft</option>
                 <option value="pending">Pending Review</option>
-                <option value="publish">Published</option>
+                <option value="published">Published</option>
                 <option value="private">Private</option>
               </select>
             </div>

@@ -122,7 +122,7 @@ export default function EditPostPage({ params }) {
   }
 
   async function handlePublish() {
-    setStatus('publish')
+    setStatus('published')
     setSaving(true)
     await fetch(`/api/posts/${id}`, {
       method: 'PUT',
@@ -130,7 +130,7 @@ export default function EditPostPage({ params }) {
       body: JSON.stringify({
         title, slug: slug || slugify(title),
         content_json: contentJson, content_html: contentHtml,
-        excerpt, status: 'publish', visibility,
+        excerpt, status: 'published', visibility,
         password: visibility === 'password' ? password : null,
         featured_image: featuredImage || null,
         scheduled_at: scheduledAt || null,
@@ -178,7 +178,7 @@ export default function EditPostPage({ params }) {
             <ArrowLeft size={16} />
           </button>
           <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>Edit Post</h1>
-          <span className={`badge ${status === 'publish' ? 'badge-success' : 'badge-secondary'}`}>{status}</span>
+          <span className={`badge ${status === 'published' ? 'badge-success' : 'badge-secondary'}`}>{status}</span>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
           <button onClick={handleTrash} className="btn btn-danger btn-sm">
@@ -187,7 +187,7 @@ export default function EditPostPage({ params }) {
           <button onClick={() => handleUpdate()} className="btn btn-secondary btn-sm" disabled={saving}>
             <Save size={14} /> {saving ? 'Saving…' : 'Update'}
           </button>
-          {status !== 'publish' && (
+          {status !== 'published' && (
             <button onClick={handlePublish} className="btn btn-primary btn-sm" disabled={saving}>
               <Send size={14} /> Publish
             </button>
@@ -232,7 +232,7 @@ export default function EditPostPage({ params }) {
               <select className="form-select" value={status} onChange={e => setStatus(e.target.value)} style={{ fontSize: '0.8rem' }}>
                 <option value="draft">Draft</option>
                 <option value="pending">Pending Review</option>
-                <option value="publish">Published</option>
+                <option value="published">Published</option>
                 <option value="private">Private</option>
               </select>
             </div>

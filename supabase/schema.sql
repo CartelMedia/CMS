@@ -11,7 +11,8 @@ CREATE EXTENSION IF NOT EXISTS "pg_trgm";
 CREATE TABLE public.users (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   email TEXT UNIQUE NOT NULL,
-  display_name TEXT,
+  name TEXT NOT NULL DEFAULT '',           -- primary display name (used by app)
+  display_name TEXT,                       -- optional alternative display name
   first_name TEXT,
   last_name TEXT,
   username TEXT UNIQUE,
@@ -122,13 +123,14 @@ CREATE TABLE public.posts (
   content_html TEXT,
   excerpt TEXT,
   status TEXT NOT NULL DEFAULT 'draft'
-    CHECK (status IN ('draft','publish','pending','private','trash','auto-draft')),
-  post_type TEXT NOT NULL DEFAULT 'post'
-    CHECK (post_type IN ('post','page','custom')),
+    CHECK (status IN ('draft','published','pending','private','trash','scheduled')),
+  type TEXT NOT NULL DEFAULT 'post'       -- renamed from post_type for simplicity
+    CHECK (type IN ('post','page','custom')),
   author_id UUID REFERENCES public.users(id) ON DELETE SET NULL,
   parent_id BIGINT REFERENCES public.posts(id) ON DELETE SET NULL,
   featured_image TEXT,
   template TEXT DEFAULT 'default',
+  is_featured BOOLEAN DEFAULT FALSE,
   page_order INTEGER DEFAULT 0,
   comment_status TEXT DEFAULT 'open' CHECK (comment_status IN ('open','closed')),
   comment_count INTEGER DEFAULT 0,
@@ -147,13 +149,13 @@ CREATE TABLE public.posts (
 
 CREATE INDEX idx_posts_slug ON public.posts(slug);
 CREATE INDEX idx_posts_status ON public.posts(status);
-CREATE INDEX idx_posts_type ON public.posts(post_type);
+CREATE INDEX idx_posts_type ON public.posts(type);
 CREATE INDEX idx_posts_author ON public.posts(author_id);
 CREATE INDEX idx_posts_search ON public.posts USING gin(search_vector);
 CREATE INDEX idx_posts_published ON public.posts(published_at DESC);
 
 ALTER TABLE public.posts ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Anyone can read published posts" ON public.posts FOR SELECT USING (status = 'publish' AND visibility = 'public');
+CREATE POLICY "Anyone can read published posts" ON public.posts FOR SELECT USING (status = 'published');
 CREATE POLICY "Authors can manage own posts" ON public.posts FOR ALL USING (author_id = auth.uid());
 CREATE POLICY "Editors+ can manage all posts" ON public.posts FOR ALL USING (
   EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role IN ('administrator','editor'))
@@ -394,10 +396,11 @@ CREATE TRIGGER trg_options_updated BEFORE UPDATE ON public.options FOR EACH ROW 
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.users (id, email, display_name, role)
+  INSERT INTO public.users (id, email, name, display_name, role)
   VALUES (
     NEW.id,
     NEW.email,
+    COALESCE(NEW.raw_user_meta_data->>'full_name', split_part(NEW.email, '@', 1)),
     COALESCE(NEW.raw_user_meta_data->>'display_name', split_part(NEW.email, '@', 1)),
     COALESCE(NEW.raw_user_meta_data->>'role', 'subscriber')
   );

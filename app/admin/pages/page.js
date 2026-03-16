@@ -8,7 +8,7 @@ import {
 
 const STATUS_TABS = [
   { key: 'all', label: 'All' },
-  { key: 'publish', label: 'Published' },
+  { key: 'published', label: 'Published' },
   { key: 'draft', label: 'Draft' },
   { key: 'trash', label: 'Trash' },
 ]
@@ -75,7 +75,7 @@ export default function PagesListPage() {
   const totalPages = Math.ceil(total / perPage)
   const statusColor = s => {
     switch (s) {
-      case 'publish': return 'badge-success'
+      case 'published': return 'badge-success'
       case 'draft': return 'badge-secondary'
       case 'pending': return 'badge-warning'
       case 'trash': return 'badge-danger'
@@ -120,7 +120,7 @@ export default function PagesListPage() {
             {activeTab === 'trash' ? (
               <><option value="draft">Restore</option><option value="delete">Delete Permanently</option></>
             ) : (
-              <><option value="publish">Publish</option><option value="draft">Set Draft</option><option value="trash">Move to Trash</option></>
+              <><option value="published">Publish</option><option value="draft">Set Draft</option><option value="trash">Move to Trash</option></>
             )}
           </select>
           <button onClick={handleBulkAction} className="btn btn-secondary btn-sm" disabled={!bulkAction || selected.length === 0}>Apply</button>
@@ -179,7 +179,7 @@ export default function PagesListPage() {
                     </div>
                   </div>
                 </td>
-                <td style={{ fontSize: '0.8rem' }}>{pg.author?.display_name || pg.author?.email || '—'}</td>
+                <td style={{ fontSize: '0.8rem' }}>{pg.author?.name || pg.author?.email || '—'}</td>
                 <td><span className={`badge ${statusColor(pg.status)}`}>{pg.status}</span></td>
                 <td style={{ fontSize: '0.8rem', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{formatDate(pg.published_at || pg.created_at)}</td>
                 <td>

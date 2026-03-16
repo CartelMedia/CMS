@@ -11,7 +11,7 @@ export async function GET(request, { params }) {
     const { id } = await params
     const { data, error } = await supabase
       .from('posts')
-      .select('*, author:users!author_id(id, display_name, email, avatar_url)')
+      .select('*, author:users!author_id(id, name, email, avatar_url)')
       .eq('id', id)
       .single()
 
@@ -40,7 +40,7 @@ export async function PUT(request, { params }) {
     const { categories, tags, ...updates } = body
 
     // Handle publish date
-    if (updates.status === 'publish') {
+    if (updates.status === 'published') {
       const { data: existing } = await supabase
         .from('posts')
         .select('published_at, status')
@@ -59,7 +59,7 @@ export async function PUT(request, { params }) {
       .from('posts')
       .update(updates)
       .eq('id', id)
-      .select('*, author:users!author_id(id, display_name, email)')
+      .select('*, author:users!author_id(id, name, email)')
       .single()
 
     if (error) throw error
@@ -93,12 +93,16 @@ export async function PUT(request, { params }) {
 export async function DELETE(request, { params }) {
   try {
     const { id } = await params
-    const { error } = await supabase
-      .from('posts')
-      .delete()
-      .eq('id', id)
+    const { searchParams } = new URL(request.url)
+    const permanent = searchParams.get('permanent') === 'true'
 
-    if (error) throw error
+    if (permanent) {
+      const { error } = await supabase.from('posts').delete().eq('id', id)
+      if (error) throw error
+    } else {
+      const { error } = await supabase.from('posts').update({ status: 'trash' }).eq('id', id)
+      if (error) throw error
+    }
 
     return NextResponse.json({ success: true })
   } catch (error) {

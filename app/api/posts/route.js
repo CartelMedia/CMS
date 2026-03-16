@@ -20,8 +20,8 @@ export async function GET(request) {
 
     let query = supabase
       .from('posts')
-      .select('*, author:users!author_id(id, display_name, email, avatar_url)', { count: 'exact' })
-      .eq('post_type', postType)
+      .select('*, author:users!author_id(id, name, email, avatar_url)', { count: 'exact' })
+      .eq('type', postType)
 
     if (status && status !== 'all') {
       query = query.eq('status', status)
@@ -86,7 +86,7 @@ export async function POST(request) {
       content_html,
       excerpt,
       status,
-      post_type,
+      type: post_type,
       author_id,
       featured_image,
       parent_id,
@@ -96,7 +96,7 @@ export async function POST(request) {
       visibility: visibility || 'public',
       password,
       scheduled_at,
-      published_at: status === 'publish' ? new Date().toISOString() : null,
+      published_at: status === 'published' ? new Date().toISOString() : null,
     }
 
     // Remove undefined values
@@ -105,7 +105,7 @@ export async function POST(request) {
     const { data, error } = await supabase
       .from('posts')
       .insert([postData])
-      .select('*, author:users!author_id(id, display_name, email)')
+      .select('*, author:users!author_id(id, name, email)')
       .single()
 
     if (error) throw error

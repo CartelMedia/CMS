@@ -49,11 +49,11 @@ export default function DashboardPage() {
 
   async function loadData() {
     const [postsRes, pagesRes, commentsRes, usersRes, recentPostsRes, recentCommentsRes] = await Promise.all([
-      supabase.from('posts').select('id', { count: 'exact', head: true }).eq('post_type', 'post').neq('status', 'trash'),
-      supabase.from('posts').select('id', { count: 'exact', head: true }).eq('post_type', 'page').neq('status', 'trash'),
+      supabase.from('posts').select('id', { count: 'exact', head: true }).eq('type', 'post').neq('status', 'trash'),
+      supabase.from('posts').select('id', { count: 'exact', head: true }).eq('type', 'page').neq('status', 'trash'),
       supabase.from('comments').select('id', { count: 'exact', head: true }).eq('status', 'approved'),
       supabase.from('users').select('id', { count: 'exact', head: true }),
-      supabase.from('posts').select('id,title,slug,status,created_at').eq('post_type', 'post').neq('status', 'trash').order('created_at', { ascending: false }).limit(5),
+      supabase.from('posts').select('id,title,slug,status,created_at').eq('type', 'post').neq('status', 'trash').order('created_at', { ascending: false }).limit(5),
       supabase.from('comments').select('id,author_name,content,created_at,post_id').eq('status', 'approved').order('created_at', { ascending: false }).limit(5),
     ])
     setStats({
@@ -75,7 +75,7 @@ export default function DashboardPage() {
       title: quickTitle,
       content_html: `<p>${quickContent}</p>`,
       status: 'draft',
-      post_type: 'post',
+      type: 'post',
       author_id: u?.id,
       slug: quickTitle.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + '-' + Date.now(),
     }])
@@ -149,8 +149,8 @@ export default function DashboardPage() {
                   </div>
                   <span style={{
                     fontSize: '0.7rem', padding: '0.2rem 0.5rem', borderRadius: 'var(--radius-sm)',
-                    background: p.status === 'publish' ? 'rgba(16,185,129,0.15)' : 'rgba(99,102,241,0.15)',
-                    color: p.status === 'publish' ? 'var(--success)' : 'var(--accent)',
+                    background: p.status === 'published' ? 'rgba(16,185,129,0.15)' : 'rgba(99,102,241,0.15)',
+                    color: p.status === 'published' ? 'var(--success)' : 'var(--accent)',
                   }}>
                     {p.status}
                   </span>
